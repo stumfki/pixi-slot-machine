@@ -29,6 +29,7 @@ export class ReelSet extends PIXI.Container {
     this.addChild(this.reelFrame);
     this.x = 600;
     this.y = 270;
+    
     window.addEventListener("keydown", (event) => {
       if (event.code === "KeyP") {
         console.log("P key pressed - spinning!");

@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import { Background } from "./components/background/Background";
 import { Character } from "./components/character/Character";
 import { ReelSet } from "./reels/ReelSet";
+import { BetSpinButtons } from "./components/bet-spin-buttons/BetSpinButtons";
 
 export class SlotMachine {
   public container: PIXI.Container;
@@ -9,6 +10,10 @@ export class SlotMachine {
   private background: Background;
   private character: Character;
   private reelSet: ReelSet;
+  private betSpinButtons: BetSpinButtons;
+
+  public balance: number = 1000;
+  public bet: number = 20;
 
   constructor(app: PIXI.Application) {
     this.app = app;
@@ -23,6 +28,9 @@ export class SlotMachine {
 
     this.reelSet = new ReelSet(5, 3, 150, 0);
     this.container.addChild(this.reelSet);
+
+    this.betSpinButtons = new BetSpinButtons(this.reelSet, this);
+    this.container.addChild(this.betSpinButtons);
   }
 
   public update(delta: number): void {
