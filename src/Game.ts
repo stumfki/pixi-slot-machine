@@ -39,32 +39,38 @@ export class Game {
       await this.assetLoader.loadAssets();
       this.slotMachine = new SlotMachine(this.app);
       this.app.stage.addChild(this.slotMachine.container);
-    
-      this.resize();
+      
+      this.app.ticker.add((ticker) => {
+        this.update(ticker.deltaTime);
+      });
 
+      this.resize();
     } catch (error) {
       console.error("Error:", error);
+    }
+  }
+
+  private update(delta: number): void {
+    if (this.slotMachine) {
+      this.slotMachine.update(delta);
     }
   }
 
   private resize(): void {
     if (!this.app || !this.app.renderer) return;
 
-
-    const gameContainer = document.getElementById('game-container');
+    const gameContainer = document.getElementById("game-container");
     if (!gameContainer) return;
 
-    
-        const w = gameContainer.clientWidth;
-        const h = gameContainer.clientHeight;
+    const w = gameContainer.clientWidth;
+    const h = gameContainer.clientHeight;
 
-        const scale = Math.min(w / 1280, h / 800);
+    const scale = Math.min(w / 1280, h / 800);
 
-        this.app.stage.scale.set(scale);
+    this.app.stage.scale.set(scale);
 
-        this.app.renderer.resize(w, h);
-        this.app.stage.position.set(w / 2, h /2.5);
-        this.app.stage.pivot.set(800, 450);
-
+    this.app.renderer.resize(w, h);
+    this.app.stage.position.set(w / 2, h / 2.5);
+    this.app.stage.pivot.set(800, 450);
   }
 }

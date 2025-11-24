@@ -3,14 +3,12 @@ import { Background } from "./components/background/Background";
 import { Character } from "./components/character/Character";
 import { ReelSet } from "./reels/ReelSet";
 
-
 export class SlotMachine {
   public container: PIXI.Container;
   private app: PIXI.Application;
   private background: Background;
   private character: Character;
-  private reelSet: ReelSet
-
+  private reelSet: ReelSet;
 
   constructor(app: PIXI.Application) {
     this.app = app;
@@ -23,12 +21,11 @@ export class SlotMachine {
     this.character = new Character(this.app);
     this.container.addChild(this.character);
 
-    this.reelSet = new ReelSet(3,5,150,0);
+    this.reelSet = new ReelSet(5, 3, 150, 0);
     this.container.addChild(this.reelSet);
-
   }
 
-
-
-
+  public update(delta: number): void {
+    this.reelSet.update(delta);
+  }
 }

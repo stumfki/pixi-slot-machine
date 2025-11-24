@@ -14,4 +14,8 @@ export class Symbol {
     this.sprite.height = symbolSize;
     this.sprite.anchor.set(0.5);
     }
+
+    public playWin() {
+      
+    }
 }

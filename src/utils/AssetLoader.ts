@@ -4,6 +4,7 @@ const IMAGES_PATH = "/assets/images/";
 const JSON_PATH = "/assets/json/";
 const IMAGES = [
   "reel.png",
+  "buttons.png",
   "background.jpg",
   "character/idle.png",
   "character/idle2.png",
