@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { Symbol } from "./symbols/Symbol";
+import { SlotSymbol } from "./symbols/Symbol";
 import { gsap } from "gsap";
 
 const SPIN_SPEED = 50;
@@ -8,7 +8,7 @@ const SNAP_SPEED_THRESHOLD = 30;
 
 export class Reel {
   public container: PIXI.Container;
-  private symbols: Symbol[];
+  public symbols: SlotSymbol[];
   private symbolCount: number;
   private symbolSize: number;
 
@@ -30,23 +30,24 @@ export class Reel {
       const symbol = this.createRandomSymbol();
       symbol.sprite.y = i * this.symbolSize;
       symbol.sprite.x = 0;
-      this.symbols.push(symbol);
       this.container.addChild(symbol.sprite);
+            this.symbols.push(symbol);
     }
   }
 
-  private createRandomSymbol(): Symbol {
-    return new Symbol(this.symbolSize);
+  private createRandomSymbol(): SlotSymbol {
+    return new SlotSymbol(this.symbolSize);
   }
 
   public update(delta: number): void {
     if (!this.isSpinning && this.speed === 0) return;
-    for (const symbol of this.symbols) {
+    for (let symbol of this.symbols) {
       symbol.sprite.y += this.speed;
 
       //Check if symbol is off the reel
       if (symbol.sprite.y > 300) {
-        //Push the symbol to the end of the reel
+        //Push the symbol to the end of the reel and create a new random symbol
+        symbol.createRandomSymbol();
         symbol.sprite.y -= this.symbolCount * this.symbolSize;
       }
     }
@@ -65,11 +66,11 @@ export class Reel {
 
   private snapToGrid(): void {
     console.log("snap");
-    const sorted = [...this.symbols].sort((a, b) => a.sprite.y - b.sprite.y);
+    this.symbols.sort((a, b) => a.sprite.y - b.sprite.y);
 
-    sorted.forEach((symbol, i) => {
-      const yto = i * this.symbolSize;
-      gsap.to(symbol.sprite, { y: yto, duration: 0.3 });
+    this.symbols.forEach((symbol, i) => {
+        const yPos = i * this.symbolSize;
+        gsap.to(symbol.sprite, { y: yPos, duration: 0.3 });
     });
   }
 

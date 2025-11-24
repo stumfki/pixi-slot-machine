@@ -1,11 +1,14 @@
 import { AssetLoader } from "../../../utils/AssetLoader";
 import { SYMBOL_TEXTURES } from "./SymbolTextures";
 import * as PIXI from "pixi.js";
-
-export class Symbol {
+import { gsap } from "gsap";
+export class SlotSymbol {
+  public symbolId: number;
   public sprite: PIXI.Sprite;
-    constructor(symbolSize: number){
+  constructor(symbolSize: number) {
     const randomIndex = Math.floor(Math.random() * SYMBOL_TEXTURES.length);
+    this.symbolId = randomIndex;
+
     const randomTexture = SYMBOL_TEXTURES[randomIndex];
     const texture = AssetLoader.getTexture(randomTexture);
 
@@ -13,9 +16,25 @@ export class Symbol {
     this.sprite.width = symbolSize;
     this.sprite.height = symbolSize;
     this.sprite.anchor.set(0.5);
-    }
+  }
 
-    public playWin() {
-      
-    }
+  public playWin() {
+    gsap.to(this.sprite.scale, {
+      x: 1.2,
+      y: 1.2,
+      duration: 0.3,
+      yoyo: true,
+      repeat: 3,
+      ease: "power1.inOut",
+    });
+  }
+
+public createRandomSymbol() {
+    const newIndex = Math.floor(Math.random() * SYMBOL_TEXTURES.length);
+    this.symbolId = newIndex;
+
+    const newTexture = AssetLoader.getTexture(SYMBOL_TEXTURES[newIndex]);
+    if (!newTexture) throw new Error(`Texture not found: ${SYMBOL_TEXTURES[newIndex]}`);
+    this.sprite.texture = newTexture;
+}
 }
