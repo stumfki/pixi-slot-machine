@@ -9,10 +9,11 @@ export class ReelSet extends PIXI.Container {
   private symbolsPerReel: number;
   private symbolSize: number;
   private reelSpacing: number;
-
+  public isSpinning: boolean = false;
   private reels: Reel[];
   private reelContainer: PIXI.Container;
   private reelFrame: ReelFrame;
+  private spinAbortController: AbortController | null = null;
   constructor(
     numberOfReels: number,
     symbolsPerReel: number,
@@ -60,70 +61,110 @@ export class ReelSet extends PIXI.Container {
     }
   }
 
+  //Store the timoues for hardstopping
+  private activeTimeouts: number[] = [];
+
   public startSpinning() {
+    if (this.isSpinning) return;
+    this.isSpinning = true;
+
+    this.clearTimeouts();
+
     for (let i = 0; i < this.reels.length; i++) {
-      setTimeout(() => {
+      const id = window.setTimeout(() => {
         this.reels[i].startSpin();
       }, i * 200);
+      this.activeTimeouts.push(id);
     }
 
-    setTimeout(() => {
+    const stopId = window.setTimeout(() => {
       this.stopSpin();
-    }, 500 + (this.reels.length - 1) * 100);
+    }, 500 + (this.reels.length - 1) * 200);
+    this.activeTimeouts.push(stopId);
+  }
+
+  //We need this to check if we can hardstop
+  public areAllReelsSpinning(): boolean {
+    for (let i = 0; i < this.reels.length; i++) {
+      if (!this.reels[i].isSpinning) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private stopSpin(): void {
     for (let i = 0; i < this.reels.length; i++) {
-      setTimeout(() => {
+      const id = window.setTimeout(() => {
         this.reels[i].stopSpin();
 
         if (i === this.reels.length - 1) {
-          setTimeout(() => {
-                 this.checkWin(this.reels);
+          const winId = window.setTimeout(() => {
+            this.checkWin(this.reels);
+            this.isSpinning = false;
           }, 500);
+          this.activeTimeouts.push(winId);
         }
       }, i * 400);
+      this.activeTimeouts.push(id);
     }
   }
 
-private checkWin(reels: Reel[]) {
+  public abortSpin() {
+    this.clearTimeouts();
+    for (const reel of this.reels) {
+      reel.stopSpin();
+      reel.hardSnapToGrid();
+    }
+    this.isSpinning = false;
+    this.checkWin(this.reels);
+  }
+
+  private clearTimeouts() {
+    for (const id of this.activeTimeouts) {
+      clearTimeout(id);
+    }
+    this.activeTimeouts = [];
+  }
+
+  private checkWin(reels: Reel[]) {
     // Build rows
     const rows: SlotSymbol[][] = [[], [], []];
     for (let reel of reels) {
-                console.log(reel.symbols)
-        for (let r = 0; r < 3; r++) {
-            rows[r].push(reel.symbols[r]);
-        }
+      console.log(reel.symbols);
+      for (let r = 0; r < 3; r++) {
+        rows[r].push(reel.symbols[r]);
+      }
     }
-    console.log("ROWS", rows)
+    console.log("ROWS", rows);
     const payouts: number[] = [];
 
     for (const row of rows) {
-        const firstSymbol = row[0];
-        let matchCount = 1;
+      const firstSymbol = row[0];
+      let matchCount = 1;
 
-        for (let i = 1; i < row.length; i++) {
-            if (row[i].symbolId === firstSymbol.symbolId) {
-                matchCount++;
-            } else {
-                break;
-            }
+      for (let i = 1; i < row.length; i++) {
+        if (row[i].symbolId === firstSymbol.symbolId) {
+          matchCount++;
+        } else {
+          break;
         }
+      }
 
-        // payout only if 3 or more matches
-        let multiplier = 0;
-        if (matchCount === 3) multiplier = 5;
-        else if (matchCount === 4) multiplier = 10;
-        else if (matchCount === 5) multiplier = 100;
+      // payout only if 3 or more matches
+      let multiplier = 0;
+      if (matchCount === 3) multiplier = 5;
+      else if (matchCount === 4) multiplier = 10;
+      else if (matchCount === 5) multiplier = 100;
 
-        payouts.push(multiplier);
+      payouts.push(multiplier);
 
-        // win animation on winning symbols
-        if (multiplier > 0) {
-            for (let i = 0; i < matchCount; i++) {
-                row[i].playWin();
-            }
+      // win animation on winning symbols
+      if (multiplier > 0) {
+        for (let i = 0; i < matchCount; i++) {
+          row[i].playWin();
         }
+      }
     }
-}
+  }
 }

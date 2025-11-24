@@ -29,16 +29,21 @@ export class BetSpinButtons extends PIXI.Container {
   }
 
   public spin() {
+    if (this.reelSet.isSpinning && this.reelSet.areAllReelsSpinning()) {
+      this.reelSet.abortSpin();
+      return;
+    }
+    if (this.reelSet.isSpinning) return;
+    this.reelSet.startSpinning();
     this.slotMachine.balance -= this.slotMachine.bet;
     this.balance.text = this.slotMachine.balance.toString();
-    this.reelSet.startSpinning();
   }
 
   private createButtons(): void {
     // Create spin button
     this.spinButton = new PIXI.Graphics();
-    this.spinButton.beginFill(0x00ff00, 0.5); 
-    this.spinButton.drawRect(50, 50, 900, 400); 
+    this.spinButton.beginFill(0x00ff00, 0.5);
+    this.spinButton.drawRect(50, 50, 900, 400);
     this.spinButton.endFill();
     this.spinButton.eventMode = "static";
     this.spinButton.cursor = "pointer";
@@ -49,8 +54,8 @@ export class BetSpinButtons extends PIXI.Container {
     this.addChild(this.spinButton);
 
     this.betPlusButton = new PIXI.Graphics();
-    this.betPlusButton.beginFill(0x00ff00, 0); 
-    this.betPlusButton.drawRect(50, 50, 200, 200); 
+    this.betPlusButton.beginFill(0x00ff00, 0);
+    this.betPlusButton.drawRect(50, 50, 200, 200);
     this.betPlusButton.endFill();
     this.betPlusButton.eventMode = "static";
     this.betPlusButton.cursor = "pointer";
@@ -61,8 +66,8 @@ export class BetSpinButtons extends PIXI.Container {
     this.addChild(this.betPlusButton);
 
     this.betMinusButton = new PIXI.Graphics();
-    this.betMinusButton.beginFill(0x00ff00, 0); 
-    this.betMinusButton.drawRect(50, 50, 200, 200); 
+    this.betMinusButton.beginFill(0x00ff00, 0);
+    this.betMinusButton.drawRect(50, 50, 200, 200);
     this.betMinusButton.endFill();
     this.betMinusButton.eventMode = "static";
     this.betMinusButton.cursor = "pointer";

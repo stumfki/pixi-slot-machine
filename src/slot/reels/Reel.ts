@@ -13,7 +13,7 @@ export class Reel {
   private symbolSize: number;
 
   private speed: number = 0;
-  private isSpinning: boolean = false;
+  public isSpinning: boolean = false;
 
   constructor(symbolCount: number, symbolSize: number) {
     this.container = new PIXI.Container();
@@ -31,7 +31,7 @@ export class Reel {
       symbol.sprite.y = i * this.symbolSize;
       symbol.sprite.x = 0;
       this.container.addChild(symbol.sprite);
-            this.symbols.push(symbol);
+      this.symbols.push(symbol);
     }
   }
 
@@ -45,13 +45,12 @@ export class Reel {
       symbol.sprite.y += this.speed;
 
       //Check if symbol is off the reel
-      if (symbol.sprite.y > 300) {
+      if (symbol.sprite.y > 400) {
         //Push the symbol to the end of the reel and create a new random symbol
         symbol.createRandomSymbol();
         symbol.sprite.y -= this.symbolCount * this.symbolSize;
       }
     }
-
 
     if (!this.isSpinning && this.speed > 0) {
       this.speed *= SLOWDOWN_RATE;
@@ -64,13 +63,22 @@ export class Reel {
     }
   }
 
-  private snapToGrid(): void {
+  public snapToGrid(): void {
     console.log("snap");
     this.symbols.sort((a, b) => a.sprite.y - b.sprite.y);
 
     this.symbols.forEach((symbol, i) => {
-        const yPos = i * this.symbolSize;
-        gsap.to(symbol.sprite, { y: yPos, duration: 0.3 });
+      const yPos = i * this.symbolSize;
+      gsap.to(symbol.sprite, { y: yPos, duration: 0.3 });
+    });
+  }
+
+  //Hard snap for faststop
+  public hardSnapToGrid(): void {
+    this.symbols.sort((a, b) => a.sprite.y - b.sprite.y);
+
+    this.symbols.forEach((symbol, i) => {
+      symbol.sprite.y = i * this.symbolSize;
     });
   }
 
