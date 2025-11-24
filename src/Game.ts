@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { AssetLoader } from "./utils/AssetLoader";
 import { SlotMachine } from "./slot/SlotMachine";
+import { Character } from "./slot/components/character/Character";
 //We need this so PIXI.js debbuger works
 declare global {
   var __PIXI_APP__: PIXI.Application;
@@ -38,6 +39,7 @@ export class Game {
       await this.assetLoader.loadAssets();
       this.slotMachine = new SlotMachine(this.app);
       this.app.stage.addChild(this.slotMachine.container);
+    
       this.resize();
 
     } catch (error) {
@@ -47,6 +49,22 @@ export class Game {
 
   private resize(): void {
     if (!this.app || !this.app.renderer) return;
+
+
+    const gameContainer = document.getElementById('game-container');
+    if (!gameContainer) return;
+
+    
+        const w = gameContainer.clientWidth;
+        const h = gameContainer.clientHeight;
+
+        const scale = Math.min(w / 1280, h / 800);
+
+        this.app.stage.scale.set(scale);
+
+        this.app.renderer.resize(w, h);
+        this.app.stage.position.set(w / 2, h /2.5);
+        this.app.stage.pivot.set(800, 450);
 
   }
 }
