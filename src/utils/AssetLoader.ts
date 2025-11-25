@@ -1,7 +1,9 @@
 import * as PIXI from "pixi.js";
+import { Sound } from "./Sound";
 
 const IMAGES_PATH = "/assets/images/";
 const JSON_PATH = "/assets/json/";
+const SOUNDS_PATH = 'assets/sounds/';
 const IMAGES = [
   "reel.png",
   "buttons.png",
@@ -19,6 +21,12 @@ const IMAGES = [
   "symbols/7.png",
   "symbols/8.png",
   "symbols/9.png",
+];
+
+const SOUNDS = [
+    'music.wav',
+    'spin.wav',
+    'win.wav'
 ];
 
 const textureCache: Record<string, PIXI.Texture> = {};
@@ -41,6 +49,7 @@ export class AssetLoader {
 
       const jsonData = await jsonResponse.json();
       jsonCache["mainCharacter.json"] = jsonData;
+      await this.loadSounds();
 
     } catch (error) {
       console.error("Error loading assets:", error);
@@ -59,4 +68,15 @@ export class AssetLoader {
   public static isLoaded(): boolean {
     return IMAGES.every(img => textureCache[img] !== undefined);
   }
+
+      private async loadSounds(): Promise<void> {
+        try {
+            SOUNDS.forEach(soundFile => {
+                Sound.add(soundFile.split('.')[0], SOUNDS_PATH + soundFile);
+            });
+        } catch (error) {
+            console.error('Error loading sounds:', error);
+            throw error;
+        }
+    }
 }

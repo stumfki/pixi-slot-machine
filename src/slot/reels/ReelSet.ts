@@ -3,6 +3,8 @@ import { Reel } from "./Reel";
 import { ReelFrame } from "./ReelFrame";
 import { Mask } from "./Mask";
 import { SlotSymbol } from "./symbols/Symbol";
+import { Sound } from "../../utils/Sound";
+import { SlotMachine } from "../SlotMachine";
 
 export class ReelSet extends PIXI.Container {
   private numberOfReels: number;
@@ -13,14 +15,17 @@ export class ReelSet extends PIXI.Container {
   private reels: Reel[];
   private reelContainer: PIXI.Container;
   private reelFrame: ReelFrame;
+  private slotmachine: SlotMachine;
   private spinAbortController: AbortController | null = null;
   constructor(
+    slotMachine: SlotMachine,
     numberOfReels: number,
     symbolsPerReel: number,
     symbolSize: number,
     reelSpacing: number
   ) {
     super();
+    this.slotmachine = slotMachine;
     this.numberOfReels = numberOfReels;
     this.symbolsPerReel = symbolsPerReel;
     this.symbolSize = symbolSize;
@@ -73,24 +78,22 @@ export class ReelSet extends PIXI.Container {
     for (let i = 0; i < this.reels.length; i++) {
       const id = window.setTimeout(() => {
         this.reels[i].startSpin();
-      }, i * 200);
+      }, i * 50);
       this.activeTimeouts.push(id);
     }
-
+    Sound.play('spin');
     const stopId = window.setTimeout(() => {
       this.stopSpin();
-    }, 500 + (this.reels.length - 1) * 200);
+    }, 150 + (this.reels.length - 1) * 180);
     this.activeTimeouts.push(stopId);
   }
 
   //We need this to check if we can hardstop
   public areAllReelsSpinning(): boolean {
-    for (let i = 0; i < this.reels.length; i++) {
-      if (!this.reels[i].isSpinning) {
-        return false;
-      }
+    if(this.reels[this.reels.length - 1].isSpinning) {
+      return true;
     }
-    return true;
+    return false;
   }
 
   private stopSpin(): void {
@@ -112,6 +115,7 @@ export class ReelSet extends PIXI.Container {
 
   public abortSpin() {
     this.clearTimeouts();
+    Sound.stop('spin');
     for (const reel of this.reels) {
       reel.stopSpin();
       reel.hardSnapToGrid();
@@ -151,8 +155,9 @@ export class ReelSet extends PIXI.Container {
         }
       }
 
-      // payout only if 3 or more matches
+      // payout only if 2 or more matches
       let multiplier = 0;
+      if (matchCount === 2) multiplier = 1;
       if (matchCount === 3) multiplier = 5;
       else if (matchCount === 4) multiplier = 10;
       else if (matchCount === 5) multiplier = 100;
@@ -161,6 +166,9 @@ export class ReelSet extends PIXI.Container {
 
       // win animation on winning symbols
       if (multiplier > 0) {
+        this.slotmachine.balance += this.slotmachine.bet * multiplier;
+        this.slotmachine.updateBalanceText();
+         Sound.play('win');
         for (let i = 0; i < matchCount; i++) {
           row[i].playWin();
         }

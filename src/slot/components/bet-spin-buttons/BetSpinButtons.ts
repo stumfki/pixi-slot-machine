@@ -39,6 +39,10 @@ export class BetSpinButtons extends PIXI.Container {
     this.balance.text = this.slotMachine.balance.toString();
   }
 
+  public updateBalanceText() {
+    this.balance.text = this.slotMachine.balance.toString();
+  }
+
   private createButtons(): void {
     // Create spin button
     this.spinButton = new PIXI.Graphics();
