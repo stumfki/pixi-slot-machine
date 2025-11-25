@@ -16,6 +16,7 @@ export class BetSpinButtons extends PIXI.Container {
   private betButton!: PIXI.Sprite;
   private betText!: PIXI.Text;
   private balance!: PIXI.Text;
+  private winText!: PIXI.Text;
 
   constructor(reelSet: ReelSet, slotMachine: SlotMachine) {
     super();
@@ -29,7 +30,7 @@ export class BetSpinButtons extends PIXI.Container {
   }
 
   public spin() {
-    gsap.globalTimeline.timeScale(5);  
+    gsap.globalTimeline.timeScale(5);
     if (this.slotMachine.balance < this.slotMachine.bet) return;
     if (this.reelSet.isSpinning && this.reelSet.areAllReelsSpinning()) {
       this.reelSet.abortSpin();
@@ -123,7 +124,7 @@ export class BetSpinButtons extends PIXI.Container {
       fontSize: 100,
       fill: 0xffffff,
       fontWeight: "bold",
-        align: "center"
+      align: "center",
     });
     this.betText.x = 650;
     this.betText.y = 448;
@@ -134,7 +135,7 @@ export class BetSpinButtons extends PIXI.Container {
       fontSize: 100,
       fill: 0xffffff,
       fontWeight: "bold",
-        align: "center"
+      align: "center",
     });
     this.balance.x = 598;
     this.balance.y = 588;
@@ -145,11 +146,22 @@ export class BetSpinButtons extends PIXI.Container {
       fontSize: 100,
       fill: 0xffffff,
       fontWeight: "bold",
-      align: "center"
+      align: "center",
     });
     this.buyBonusText.x = -591;
     this.buyBonusText.y = 172;
     this.addChild(this.buyBonusText);
+
+    this.winText = new PIXI.Text("WIN: 1000", {
+      fontFamily: "Arial",
+      fontSize: 180,
+      fill: 0xffffff,
+      fontWeight: "bold",
+      align: "center",
+    });
+    this.winText.x = 460;
+    this.winText.y = -1882;
+    this.addChild(this.winText);
   }
 
   public update() {
@@ -157,6 +169,12 @@ export class BetSpinButtons extends PIXI.Container {
     this.betText.text = this.slotMachine.bet.toString();
     this.balance.text = this.slotMachine.balance.toString();
     this.buyBonusText.text = "COSTS: " + (this.slotMachine.bet * 6).toString();
+    if (this.slotMachine.lastWinAmount > 0) {
+      this.winText.text = "WIN: " + this.slotMachine.lastWinAmount.toString();
+    } else {
+      this.winText.text = "";
+    }
+
     if (
       this.reelSet.isSpinning ||
       this.slotMachine.balance < this.slotMachine.bet

@@ -15,6 +15,7 @@ export class SlotMachine {
 
   public balance: number = 100;
   public bet: number = 1;
+  public lastWinAmount: number = 0;
 
   constructor(app: PIXI.Application) {
     this.app = app;

@@ -22,6 +22,7 @@ export class ReelSet extends PIXI.Container {
   private reelBackground: ReelBackground;
   private slotmachine: SlotMachine;
   private character: Character;
+  private buyBonus: boolean = false;
   private spinAbortController: AbortController | null = null;
   constructor(
     slotMachine: SlotMachine,
@@ -75,6 +76,8 @@ export class ReelSet extends PIXI.Container {
 
   public startSpinning(buyBonus: boolean = false) {
     if (this.isSpinning) return;
+    this.slotmachine.lastWinAmount = 0;
+    this.buyBonus = buyBonus;
     this.isSpinning = true;
 
     this.clearTimeouts();
@@ -87,7 +90,7 @@ export class ReelSet extends PIXI.Container {
     }
     Sound.play("spin");
     const stopId = window.setTimeout(() => {
-      this.stopSpin(buyBonus);
+      this.stopSpin();
     }, 150 + (this.reels.length - 1) * 180);
     this.activeTimeouts.push(stopId);
   }
@@ -100,7 +103,7 @@ export class ReelSet extends PIXI.Container {
     return false;
   }
 
-  private async stopSpin(buyBonus: boolean = false) {
+  private async stopSpin() {
     for (let i = 0; i < this.reels.length; i++) {
       const id = window.setTimeout(() => {
         this.reels[i].stopSpin();
@@ -108,7 +111,7 @@ export class ReelSet extends PIXI.Container {
         if (i === this.reels.length - 1) {
           const winId = window.setTimeout(async () => {
             this.checkWin(this.reels);
-            await this.triggerBonus(buyBonus);
+            await this.triggerBonus(this.buyBonus);
             this.isSpinning = false;
           }, 500);
           this.activeTimeouts.push(winId);
@@ -127,7 +130,7 @@ export class ReelSet extends PIXI.Container {
     }
     await sleep(1000);
     this.checkWin(this.reels);
-    await this.triggerBonus();
+    await this.triggerBonus(this.buyBonus);
     this.isSpinning = false;
   }
 
@@ -181,7 +184,9 @@ export class ReelSet extends PIXI.Container {
       payouts.push(multiplier);
             // win animation on winning symbols
       if (multiplier > 0) {
-        this.slotmachine.balance += this.slotmachine.bet * multiplier;
+        const lastWinAmount = this.slotmachine.bet * multiplier;
+        this.slotmachine.balance += lastWinAmount;
+        this.slotmachine.lastWinAmount = lastWinAmount;
         this.character.playWin();
         Sound.play("win");
         for (let i = 0; i < matchCount; i++) {
