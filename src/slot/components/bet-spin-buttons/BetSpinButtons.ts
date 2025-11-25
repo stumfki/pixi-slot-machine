@@ -156,11 +156,17 @@ export class BetSpinButtons extends PIXI.Container {
       this.reelSet.isSpinning ||
       this.slotMachine.balance < this.slotMachine.bet
     ) {
-      this.buyBonusButton.alpha = 0.5;
       texture = AssetLoader.getTexture("spindisabled.png");
     } else {
-      this.buyBonusButton.alpha = 1;
       texture = AssetLoader.getTexture("spinbuttonenabled.png");
+    }
+    if (
+      this.slotMachine.balance < this.slotMachine.bet * 6 ||
+      this.reelSet.isSpinning
+    ) {
+      this.buyBonusButton.alpha = 0.5;
+    } else {
+      this.buyBonusButton.alpha = 1;
     }
 
     if (!texture) {
