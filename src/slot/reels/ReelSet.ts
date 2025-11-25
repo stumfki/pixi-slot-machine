@@ -125,6 +125,7 @@ export class ReelSet extends PIXI.Container {
       reel.stopSpin();
       reel.hardSnapToGrid();
     }
+    await sleep(1000);
     this.checkWin(this.reels);
     await this.triggerBonus();
     this.checkWin(this.reels);
@@ -133,7 +134,7 @@ export class ReelSet extends PIXI.Container {
 
   public async triggerBonus(buyBonus: boolean = false) {
     const randomSymbolNumber = Math.floor(Math.random() * 10);
-    if (Math.random() < 1 / 6 || buyBonus) {
+    if (Math.random() < 1 / 12 || buyBonus) {
       await sleep(500);
       await this.character.playFeature(this.reels, randomSymbolNumber);
       await sleep(3500);
