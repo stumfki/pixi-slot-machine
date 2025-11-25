@@ -80,31 +80,6 @@ export class Character extends PIXI.Container {
     }
   }
 
-  public async moveToReel0() {
-    await gsap.to(this.position, {
-      x: 367,
-      y: 285,
-      duration: 2,
-      ease: "power1.inOut",
-    });
-  }
-  public async moveToReel1() {
-    await gsap.to(this.position, {
-      x: 367,
-      y: 485,
-      duration: 2,
-      ease: "power1.inOut",
-    });
-  }
-  public async moveToReel2() {
-    await gsap.to(this.position, {
-      x: 367,
-      y: 641,
-      duration: 2,
-      ease: "power1.inOut",
-    });
-  }
-
   public async resetPoitionAndScale() {
     await gsap.to(this.position, {
       x: 520,
@@ -121,6 +96,7 @@ export class Character extends PIXI.Container {
   }
   public async playFeature(reels: Reel[], symbolId: number = 3) {
     Sound.play("bonusactivate");
+
     await gsap.to(this.animatedSprite.scale, {
       x: 5,
       y: 5,
@@ -131,22 +107,26 @@ export class Character extends PIXI.Container {
     for (let reel of reels) {
       for (let i = 0; i < reel.symbols.length; i++) {
         const globalPos = reel.symbols[i].sprite.getGlobalPosition();
+        const localPos = this.parent!.toLocal(globalPos);
+
         Sound.play("ghostmove");
+
         await gsap.to(this.position, {
-          x: globalPos.x,
-          y: globalPos.y,
+          x: localPos.x - 200,
+          y: localPos.y,
           duration: 1,
           ease: "power1.inOut",
         });
 
         await sleep(300);
+
         if (Math.random() < 1 / 3) {
           this.playWin();
           reel.symbols[i].createSpecificSymbol(symbolId);
-        } else {
         }
       }
     }
+
     Sound.play("ghostmove");
     this.resetPoitionAndScale();
   }

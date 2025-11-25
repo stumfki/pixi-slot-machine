@@ -27,7 +27,7 @@ export class Game {
       await this.app.init({
         width: 1980,
         height: 1080,
-        backgroundColor: 0x1099bb,
+        backgroundColor: 0x00000,
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
       });
@@ -65,12 +65,12 @@ export class Game {
     const w = gameContainer.clientWidth;
     const h = gameContainer.clientHeight;
 
-    const scale = Math.min(w / 1280, h / 800);
+    const scale = Math.min(w / 1000, h / 700);
 
     this.app.stage.scale.set(scale);
 
     this.app.renderer.resize(w, h);
     this.app.stage.position.set(w / 2, h / 2.5);
-    this.app.stage.pivot.set(800, 450);
+    this.app.stage.pivot.set(650, 350);
   }
 }
