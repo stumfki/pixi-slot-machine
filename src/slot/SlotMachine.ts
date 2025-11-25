@@ -13,8 +13,8 @@ export class SlotMachine {
   private reelSet: ReelSet;
   private betSpinButtons: BetSpinButtons;
 
-  public balance: number = 1000;
-  public bet: number = 20;
+  public balance: number = 100;
+  public bet: number = 1;
 
   constructor(app: PIXI.Application) {
     this.app = app;

@@ -109,7 +109,6 @@ export class ReelSet extends PIXI.Container {
           const winId = window.setTimeout(async () => {
             this.checkWin(this.reels);
             await this.triggerBonus(buyBonus);
-            this.checkWin(this.reels);
             this.isSpinning = false;
           }, 500);
           this.activeTimeouts.push(winId);
@@ -129,7 +128,6 @@ export class ReelSet extends PIXI.Container {
     await sleep(1000);
     this.checkWin(this.reels);
     await this.triggerBonus();
-    this.checkWin(this.reels);
     this.isSpinning = false;
   }
 
@@ -139,6 +137,7 @@ export class ReelSet extends PIXI.Container {
       await sleep(500);
       await this.character.playFeature(this.reels, randomSymbolNumber);
       await sleep(3500);
+      this.checkWin(this.reels);
     }
   }
 
@@ -174,14 +173,13 @@ export class ReelSet extends PIXI.Container {
 
       // payout only if 2 or more matches
       let multiplier = 0;
-      if (matchCount === 2) multiplier = 1;
-      if (matchCount === 3) multiplier = 5;
+      if (matchCount === 2) multiplier = 2;
+      if (matchCount === 3) multiplier = 3;
       else if (matchCount === 4) multiplier = 10;
       else if (matchCount === 5) multiplier = 100;
 
       payouts.push(multiplier);
-
-      // win animation on winning symbols
+            // win animation on winning symbols
       if (multiplier > 0) {
         this.slotmachine.balance += this.slotmachine.bet * multiplier;
         this.character.playWin();
@@ -191,5 +189,6 @@ export class ReelSet extends PIXI.Container {
         }
       }
     }
+    
   }
 }

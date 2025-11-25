@@ -51,14 +51,14 @@ export class BetSpinButtons extends PIXI.Container {
       this.slotMachine.balance > this.slotMachine.bet &&
       !this.reelSet.isSpinning
     ) {
-      this.slotMachine.bet += 20;
+      this.slotMachine.bet += 1;
       this.betText.text = this.slotMachine.bet.toString();
     }
   }
 
   private decreaseBet() {
-    if (this.slotMachine.bet > 20 && !this.reelSet.isSpinning) {
-      this.slotMachine.bet -= 20;
+    if (this.slotMachine.bet > 1 && !this.reelSet.isSpinning) {
+      this.slotMachine.bet -= 1;
       this.betText.text = this.slotMachine.bet.toString();
     }
   }
@@ -123,6 +123,7 @@ export class BetSpinButtons extends PIXI.Container {
       fontSize: 100,
       fill: 0xffffff,
       fontWeight: "bold",
+        align: "center"
     });
     this.betText.x = 650;
     this.betText.y = 448;
@@ -133,6 +134,7 @@ export class BetSpinButtons extends PIXI.Container {
       fontSize: 100,
       fill: 0xffffff,
       fontWeight: "bold",
+        align: "center"
     });
     this.balance.x = 598;
     this.balance.y = 588;
@@ -143,6 +145,7 @@ export class BetSpinButtons extends PIXI.Container {
       fontSize: 100,
       fill: 0xffffff,
       fontWeight: "bold",
+      align: "center"
     });
     this.buyBonusText.x = -591;
     this.buyBonusText.y = 172;
