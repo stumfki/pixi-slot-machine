@@ -42,7 +42,7 @@ export class BetSpinButtons extends PIXI.Container {
   }
 
   public buyBonus() {
-    if (this.slotMachine.balance < this.slotMachine.bet * 6) return;
+    if (this.slotMachine.balance < this.slotMachine.bet * 6 || this.reelSet.isSpinning) return;
     this.reelSet.startSpinning(true);
     this.slotMachine.balance -= this.slotMachine.bet * 6;
   }
