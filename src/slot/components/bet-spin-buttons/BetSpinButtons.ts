@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import { AssetLoader } from "../../../utils/AssetLoader";
 import { ReelSet } from "../../reels/ReelSet";
 import { SlotMachine } from "../../SlotMachine";
+import { gsap } from "gsap/gsap-core";
 
 export class BetSpinButtons extends PIXI.Container {
   private reelSet: ReelSet;
@@ -28,6 +29,7 @@ export class BetSpinButtons extends PIXI.Container {
   }
 
   public spin() {
+    gsap.globalTimeline.timeScale(5);  
     if (this.slotMachine.balance < this.slotMachine.bet) return;
     if (this.reelSet.isSpinning && this.reelSet.areAllReelsSpinning()) {
       this.reelSet.abortSpin();

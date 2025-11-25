@@ -8,6 +8,7 @@ import { SlotMachine } from "../SlotMachine";
 import { Character } from "../components/character/Character";
 import { ReelBackground } from "./ReelBackground";
 import { sleep } from "../../utils/Utils";
+import { gsap } from "gsap/gsap-core";
 
 export class ReelSet extends PIXI.Container {
   private numberOfReels: number;
@@ -150,6 +151,7 @@ export class ReelSet extends PIXI.Container {
 
   private checkWin(reels: Reel[]) {
     // Build rows
+    gsap.globalTimeline.timeScale(1);  
     const rows: SlotSymbol[][] = [[], [], []];
     for (let reel of reels) {
       for (let r = 0; r < 3; r++) {
