@@ -1,5 +1,6 @@
 import * as PIXI from "pixi.js";
 import { AssetLoader } from "../../../utils/AssetLoader";
+import { Sound } from "../../../utils/Sound";
 
 export class Character extends PIXI.Container {
   private animatedSprite: PIXI.AnimatedSprite;
@@ -7,18 +8,24 @@ export class Character extends PIXI.Container {
 
   constructor(app: PIXI.Application) {
     super();
-
+    this.sortableChildren = true;
+    this.zIndex = 5;
+    window.addEventListener("keydown", (event) => {
+      if (event.code === "KeyP") {
+        console.log("P key pressed - spinning!");
+        this.playWin();
+      }
+    });
     const idleTexture = AssetLoader.getTexture("character/idle.png");
-    const idle2Texture = AssetLoader.getTexture("character/idle2.png");
     const attackingTexture = AssetLoader.getTexture("character/attacking.png");
 
-    if (!idleTexture || !idle2Texture || !attackingTexture) {
+    if (!idleTexture || !attackingTexture) {
       console.error("Character textures not loaded!");
       this.animatedSprite = new PIXI.AnimatedSprite([PIXI.Texture.EMPTY]);
       return;
     }
 
-    this.setupAnimations(idleTexture, idle2Texture, attackingTexture);
+    this.setupAnimations(idleTexture, attackingTexture);
 
     const idleFrames = this.animations["idle"] ||
       this.animations["idle1.1"] || [idleTexture];
@@ -33,6 +40,7 @@ export class Character extends PIXI.Container {
         this.animatedSprite.currentFrame >=
         this.animatedSprite.textures.length - 1
       ) {
+        this.playAnimation("idle");
         this.animatedSprite.gotoAndPlay(0);
       }
     });
@@ -44,11 +52,9 @@ export class Character extends PIXI.Container {
 
   private setupAnimations(
     idleTexture: PIXI.Texture,
-    idle2Texture: PIXI.Texture,
     attackingTexture: PIXI.Texture
   ): void {
     this.parseSpriteSheet(idleTexture, "idle");
-    this.parseSpriteSheet(idle2Texture, "idle2");
     this.parseSpriteSheet(attackingTexture, "attacking");
   }
 
@@ -81,7 +87,7 @@ export class Character extends PIXI.Container {
     let animKey = animationName;
     if (!this.animations[animKey]) {
       if (animationName === "idle") animKey = "idle1.1";
-      if (animationName === "attacking") animKey = "attack";
+      if (animationName === "win") animKey = "attack";
     }
 
     const frames = this.animations[animKey];
@@ -92,7 +98,8 @@ export class Character extends PIXI.Container {
     this.animatedSprite.play();
   }
 
-  public setPosition(x: number, y: number): void {
-    this.position.set(x, y);
+  public playWin() {
+    Sound.play('slash', 1.5)
+    this.playAnimation("win", false);
   }
 }

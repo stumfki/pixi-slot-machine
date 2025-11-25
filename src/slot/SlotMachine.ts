@@ -27,16 +27,18 @@ export class SlotMachine {
     this.character = new Character(this.app);
     this.container.addChild(this.character);
 
-    this.reelSet = new ReelSet(this,5, 3, 150, 0);
+    
+    this.reelSet = new ReelSet(this, this.character, 5, 3, 150, 0);
     this.container.addChild(this.reelSet);
 
     this.betSpinButtons = new BetSpinButtons(this.reelSet, this);
     this.container.addChild(this.betSpinButtons);
-    Sound.loop('music');
+    Sound.loop("music");
   }
 
   public update(delta: number): void {
     this.reelSet.update(delta);
+    this.betSpinButtons.updateSpinButtonTexture();
   }
 
   public updateBalanceText() {

@@ -5,6 +5,8 @@ import { Mask } from "./Mask";
 import { SlotSymbol } from "./symbols/Symbol";
 import { Sound } from "../../utils/Sound";
 import { SlotMachine } from "../SlotMachine";
+import { Character } from "../components/character/Character";
+import { ReelBackground } from "./ReelBackground";
 
 export class ReelSet extends PIXI.Container {
   private numberOfReels: number;
@@ -15,10 +17,13 @@ export class ReelSet extends PIXI.Container {
   private reels: Reel[];
   private reelContainer: PIXI.Container;
   private reelFrame: ReelFrame;
+  private reelBackground: ReelBackground;
   private slotmachine: SlotMachine;
+  private character: Character;
   private spinAbortController: AbortController | null = null;
   constructor(
     slotMachine: SlotMachine,
+    character: Character,
     numberOfReels: number,
     symbolsPerReel: number,
     symbolSize: number,
@@ -26,6 +31,7 @@ export class ReelSet extends PIXI.Container {
   ) {
     super();
     this.slotmachine = slotMachine;
+    this.character = character;
     this.numberOfReels = numberOfReels;
     this.symbolsPerReel = symbolsPerReel;
     this.symbolSize = symbolSize;
@@ -33,6 +39,8 @@ export class ReelSet extends PIXI.Container {
     this.reelContainer = new PIXI.Container();
     this.reels = [];
     this.createReels();
+    this.reelBackground = new ReelBackground();
+    this.addChild(this.reelBackground);
     this.reelFrame = new ReelFrame();
     this.addChild(this.reelFrame);
     this.x = 600;
@@ -42,12 +50,6 @@ export class ReelSet extends PIXI.Container {
     mask.reelMask.y = -82;
     this.reelContainer.addChild(mask.reelMask);
     this.reelContainer.mask = mask.reelMask;
-    window.addEventListener("keydown", (event) => {
-      if (event.code === "KeyP") {
-        console.log("P key pressed - spinning!");
-        this.startSpinning();
-      }
-    });
   }
 
   private createReels(): void {
@@ -81,7 +83,7 @@ export class ReelSet extends PIXI.Container {
       }, i * 50);
       this.activeTimeouts.push(id);
     }
-    Sound.play('spin');
+    Sound.play("spin");
     const stopId = window.setTimeout(() => {
       this.stopSpin();
     }, 150 + (this.reels.length - 1) * 180);
@@ -90,7 +92,7 @@ export class ReelSet extends PIXI.Container {
 
   //We need this to check if we can hardstop
   public areAllReelsSpinning(): boolean {
-    if(this.reels[this.reels.length - 1].isSpinning) {
+    if (this.reels[this.reels.length - 1].isSpinning) {
       return true;
     }
     return false;
@@ -115,7 +117,7 @@ export class ReelSet extends PIXI.Container {
 
   public abortSpin() {
     this.clearTimeouts();
-    Sound.stop('spin');
+    Sound.stop("spin");
     for (const reel of this.reels) {
       reel.stopSpin();
       reel.hardSnapToGrid();
@@ -168,7 +170,8 @@ export class ReelSet extends PIXI.Container {
       if (multiplier > 0) {
         this.slotmachine.balance += this.slotmachine.bet * multiplier;
         this.slotmachine.updateBalanceText();
-         Sound.play('win');
+        this.character.playWin();
+        Sound.play("win");
         for (let i = 0; i < matchCount; i++) {
           row[i].playWin();
         }

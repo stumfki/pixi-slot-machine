@@ -6,22 +6,19 @@ import { SlotMachine } from "../../SlotMachine";
 export class BetSpinButtons extends PIXI.Container {
   private reelSet: ReelSet;
   private slotMachine: SlotMachine;
-  private spinButton!: PIXI.Graphics;
+  private spinButton!: PIXI.Sprite;
+
   private betPlusButton!: PIXI.Graphics;
   private betMinusButton!: PIXI.Graphics;
+  private betButton!: PIXI.Sprite;
   private betText!: PIXI.Text;
   private balance!: PIXI.Text;
 
   constructor(reelSet: ReelSet, slotMachine: SlotMachine) {
     super();
-    const background = AssetLoader.getTexture("buttons.png");
-    const sprite = new PIXI.Sprite(background);
-    const overlay = new PIXI.Graphics();
     this.scale.set(0.26);
     this.x = 693;
     this.y = 626;
-
-    this.addChild(sprite);
 
     this.reelSet = reelSet;
     this.slotMachine = slotMachine;
@@ -29,6 +26,7 @@ export class BetSpinButtons extends PIXI.Container {
   }
 
   public spin() {
+    if(this.slotMachine.balance < this.slotMachine.bet) return;
     if (this.reelSet.isSpinning && this.reelSet.areAllReelsSpinning()) {
       this.reelSet.abortSpin();
       return;
@@ -45,26 +43,31 @@ export class BetSpinButtons extends PIXI.Container {
 
   private createButtons(): void {
     // Create spin button
-    this.spinButton = new PIXI.Graphics();
-    this.spinButton.beginFill(0x00ff00, 0.5);
-    this.spinButton.drawRect(50, 50, 900, 400);
-    this.spinButton.endFill();
+    const spinButtonTexture = AssetLoader.getTexture("spinbuttonenabled.png");
+    this.spinButton = new PIXI.Sprite(spinButtonTexture);
+    this.spinButton.scale.set(0.8);
+    this.addChild(this.spinButton);
     this.spinButton.eventMode = "static";
     this.spinButton.cursor = "pointer";
-    this.spinButton.x = 257;
-    this.spinButton.y = 92;
+    this.spinButton.x = 282;
+    this.spinButton.y = 94;
 
     this.spinButton.on("pointerdown", this.spin, this);
     this.addChild(this.spinButton);
 
+    const betTexture = AssetLoader.getTexture("betbuttons.png");
+    this.betButton = new PIXI.Sprite(betTexture);
+    this.betButton.x = 175;
+    this.betButton.y = 433;
+    this.addChild(this.betButton);
     this.betPlusButton = new PIXI.Graphics();
     this.betPlusButton.beginFill(0x00ff00, 0);
     this.betPlusButton.drawRect(50, 50, 200, 200);
     this.betPlusButton.endFill();
     this.betPlusButton.eventMode = "static";
     this.betPlusButton.cursor = "pointer";
-    this.betPlusButton.x = 1014;
-    this.betPlusButton.y = 652;
+    this.betPlusButton.x = 943;
+    this.betPlusButton.y = 490;
 
     this.betPlusButton.on("pointerdown", this.increaseBet, this);
     this.addChild(this.betPlusButton);
@@ -75,8 +78,8 @@ export class BetSpinButtons extends PIXI.Container {
     this.betMinusButton.endFill();
     this.betMinusButton.eventMode = "static";
     this.betMinusButton.cursor = "pointer";
-    this.betMinusButton.x = 222;
-    this.betMinusButton.y = 652;
+    this.betMinusButton.x = 151;
+    this.betMinusButton.y = 492;
     this.betMinusButton.on("pointerdown", this.decreaseBet, this);
 
     this.addChild(this.betMinusButton);
@@ -87,8 +90,8 @@ export class BetSpinButtons extends PIXI.Container {
       fill: 0xffffff,
       fontWeight: "bold",
     });
-    this.betText.x = 714;
-    this.betText.y = 605;
+    this.betText.x = 650;
+    this.betText.y = 448;
     this.addChild(this.betText);
 
     this.balance = new PIXI.Text("1000", {
@@ -97,8 +100,8 @@ export class BetSpinButtons extends PIXI.Container {
       fill: 0xffffff,
       fontWeight: "bold",
     });
-    this.balance.x = 657;
-    this.balance.y = 745;
+    this.balance.x = 598;
+    this.balance.y = 588;
     this.addChild(this.balance);
   }
 
@@ -107,6 +110,22 @@ export class BetSpinButtons extends PIXI.Container {
       this.slotMachine.bet += 20;
       this.betText.text = this.slotMachine.bet.toString();
     }
+  }
+
+  public updateSpinButtonTexture() {
+    let texture: PIXI.Texture | undefined;
+
+    if (this.reelSet.isSpinning || this.slotMachine.balance < this.slotMachine.bet) {
+      texture = AssetLoader.getTexture("spindisabled.png");
+    } else {
+      texture = AssetLoader.getTexture("spinbuttonenabled.png");
+    }
+
+    if (!texture) {
+      return;
+    }
+
+    this.spinButton.texture = texture; // ✅ guaranteed non-undefined
   }
 
   private decreaseBet() {

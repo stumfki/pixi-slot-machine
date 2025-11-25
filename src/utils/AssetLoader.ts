@@ -6,8 +6,11 @@ const JSON_PATH = "/assets/json/";
 const SOUNDS_PATH = 'assets/sounds/';
 const IMAGES = [
   "reel.png",
-  "buttons.png",
+  "betbuttons.png",
+  "spinbuttonenabled.png",
+  "spindisabled.png",
   "background.jpg",
+  "reelbackground.png",
   "character/idle.png",
   "character/idle2.png",
   "character/attacking.png",
@@ -24,9 +27,10 @@ const IMAGES = [
 ];
 
 const SOUNDS = [
-    'music.wav',
-    'spin.wav',
-    'win.wav'
+    "music.wav",
+    "spin.wav",
+    "win.wav",
+    "slash.wav"
 ];
 
 const textureCache: Record<string, PIXI.Texture> = {};

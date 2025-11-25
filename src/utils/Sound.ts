@@ -15,8 +15,9 @@ export const Sound = {
       console.error(`Error adding sound ${alias}:`, error);
     }
   },
-  play: (alias: string): void => {
+  play: (alias: string, volume : number = 0.8): void => {
       if (sounds[alias]) {
+        sounds[alias].volume(volume)
         sounds[alias].play();
       } 
   },
