@@ -65,12 +65,12 @@ export class Game {
     const w = gameContainer.clientWidth;
     const h = gameContainer.clientHeight;
 
-    const scale = Math.min(w / 1000, h / 700);
+    const scale = Math.min(w / 1080, h / 890);
 
     this.app.stage.scale.set(scale);
 
     this.app.renderer.resize(w, h);
     this.app.stage.position.set(w / 2, h / 2.5);
-    this.app.stage.pivot.set(650, 350);
+    this.app.stage.pivot.set(790, 450);
   }
 }

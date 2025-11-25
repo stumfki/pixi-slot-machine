@@ -64,7 +64,6 @@ export class Reel {
   }
 
   public snapToGrid(): void {
-    console.log("snap");
     this.symbols.sort((a, b) => a.sprite.y - b.sprite.y);
 
     this.symbols.forEach((symbol, i) => {

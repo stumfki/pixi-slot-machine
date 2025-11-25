@@ -31,12 +31,6 @@ export class ReelSet extends PIXI.Container {
     reelSpacing: number
   ) {
     super();
-    window.addEventListener("keydown", (event) => {
-      if (event.code === "KeyA") {
-        console.log("P key pressed - spinning!");
-        this.checkWin(this.reels);
-      }
-    });
     this.slotmachine = slotMachine;
     this.character = character;
     this.numberOfReels = numberOfReels;
@@ -154,16 +148,13 @@ export class ReelSet extends PIXI.Container {
   }
 
   private checkWin(reels: Reel[]) {
-    console.log("check win");
     // Build rows
     const rows: SlotSymbol[][] = [[], [], []];
     for (let reel of reels) {
-      console.log(reel.symbols);
       for (let r = 0; r < 3; r++) {
         rows[r].push(reel.symbols[r]);
       }
     }
-    console.log("ROWS", rows);
     const payouts: number[] = [];
 
     for (const row of rows) {
