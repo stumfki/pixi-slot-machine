@@ -7,6 +7,8 @@ export class BetSpinButtons extends PIXI.Container {
   private reelSet: ReelSet;
   private slotMachine: SlotMachine;
   private spinButton!: PIXI.Sprite;
+  private buyBonusButton!: PIXI.Sprite;
+  private buyBonusText!: PIXI.Text;
 
   private betPlusButton!: PIXI.Graphics;
   private betMinusButton!: PIXI.Graphics;
@@ -26,7 +28,7 @@ export class BetSpinButtons extends PIXI.Container {
   }
 
   public spin() {
-    if(this.slotMachine.balance < this.slotMachine.bet) return;
+    if (this.slotMachine.balance < this.slotMachine.bet) return;
     if (this.reelSet.isSpinning && this.reelSet.areAllReelsSpinning()) {
       this.reelSet.abortSpin();
       return;
@@ -34,11 +36,29 @@ export class BetSpinButtons extends PIXI.Container {
     if (this.reelSet.isSpinning) return;
     this.reelSet.startSpinning();
     this.slotMachine.balance -= this.slotMachine.bet;
-    this.balance.text = this.slotMachine.balance.toString();
   }
 
-  public updateBalanceText() {
-    this.balance.text = this.slotMachine.balance.toString();
+  public buyBonus() {
+    if (this.slotMachine.balance < this.slotMachine.bet * 6) return;
+    this.reelSet.startSpinning(true);
+    this.slotMachine.balance -= this.slotMachine.bet * 6;
+  }
+
+  private increaseBet() {
+    if (
+      this.slotMachine.balance > this.slotMachine.bet &&
+      !this.reelSet.isSpinning
+    ) {
+      this.slotMachine.bet += 20;
+      this.betText.text = this.slotMachine.bet.toString();
+    }
+  }
+
+  private decreaseBet() {
+    if (this.slotMachine.bet > 20 && !this.reelSet.isSpinning) {
+      this.slotMachine.bet -= 20;
+      this.betText.text = this.slotMachine.bet.toString();
+    }
   }
 
   private createButtons(): void {
@@ -54,6 +74,18 @@ export class BetSpinButtons extends PIXI.Container {
 
     this.spinButton.on("pointerdown", this.spin, this);
     this.addChild(this.spinButton);
+
+    const buyBonusTexture = AssetLoader.getTexture("buybonusbutton.png");
+    this.buyBonusButton = new PIXI.Sprite(buyBonusTexture);
+    this.buyBonusButton.scale.set(0.8);
+    this.addChild(this.buyBonusButton);
+    this.buyBonusButton.eventMode = "static";
+    this.buyBonusButton.cursor = "pointer";
+    this.buyBonusButton.x = -767;
+    this.buyBonusButton.y = 250;
+
+    this.buyBonusButton.on("pointerdown", this.buyBonus, this);
+    this.addChild(this.buyBonusButton);
 
     const betTexture = AssetLoader.getTexture("betbuttons.png");
     this.betButton = new PIXI.Sprite(betTexture);
@@ -103,21 +135,31 @@ export class BetSpinButtons extends PIXI.Container {
     this.balance.x = 598;
     this.balance.y = 588;
     this.addChild(this.balance);
+
+    this.buyBonusText = new PIXI.Text("COSTS: 1000", {
+      fontFamily: "Arial",
+      fontSize: 100,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    this.buyBonusText.x = -591;
+    this.buyBonusText.y = 172;
+    this.addChild(this.buyBonusText);
   }
 
-  private increaseBet() {
-    if (this.slotMachine.balance > this.slotMachine.bet) {
-      this.slotMachine.bet += 20;
-      this.betText.text = this.slotMachine.bet.toString();
-    }
-  }
-
-  public updateSpinButtonTexture() {
+  public update() {
     let texture: PIXI.Texture | undefined;
-
-    if (this.reelSet.isSpinning || this.slotMachine.balance < this.slotMachine.bet) {
+    this.betText.text = this.slotMachine.bet.toString();
+    this.balance.text = this.slotMachine.balance.toString();
+    this.buyBonusText.text = "COSTS: " + (this.slotMachine.bet * 6).toString();
+    if (
+      this.reelSet.isSpinning ||
+      this.slotMachine.balance < this.slotMachine.bet
+    ) {
+      this.buyBonusButton.alpha = 0.5;
       texture = AssetLoader.getTexture("spindisabled.png");
     } else {
+      this.buyBonusButton.alpha = 1;
       texture = AssetLoader.getTexture("spinbuttonenabled.png");
     }
 
@@ -125,13 +167,6 @@ export class BetSpinButtons extends PIXI.Container {
       return;
     }
 
-    this.spinButton.texture = texture; // ✅ guaranteed non-undefined
-  }
-
-  private decreaseBet() {
-    if (this.slotMachine.bet > 20) {
-      this.slotMachine.bet -= 20;
-      this.betText.text = this.slotMachine.bet.toString();
-    }
+    this.spinButton.texture = texture;
   }
 }

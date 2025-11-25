@@ -38,10 +38,6 @@ export class SlotMachine {
 
   public update(delta: number): void {
     this.reelSet.update(delta);
-    this.betSpinButtons.updateSpinButtonTexture();
-  }
-
-  public updateBalanceText() {
-    this.betSpinButtons.updateBalanceText();
+    this.betSpinButtons.update();
   }
 }

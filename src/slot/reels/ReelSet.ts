@@ -7,6 +7,7 @@ import { Sound } from "../../utils/Sound";
 import { SlotMachine } from "../SlotMachine";
 import { Character } from "../components/character/Character";
 import { ReelBackground } from "./ReelBackground";
+import { sleep } from "../../utils/Utils";
 
 export class ReelSet extends PIXI.Container {
   private numberOfReels: number;
@@ -30,6 +31,12 @@ export class ReelSet extends PIXI.Container {
     reelSpacing: number
   ) {
     super();
+    window.addEventListener("keydown", (event) => {
+      if (event.code === "KeyA") {
+        console.log("P key pressed - spinning!");
+        this.checkWin(this.reels);
+      }
+    });
     this.slotmachine = slotMachine;
     this.character = character;
     this.numberOfReels = numberOfReels;
@@ -71,7 +78,7 @@ export class ReelSet extends PIXI.Container {
   //Store the timoues for hardstopping
   private activeTimeouts: number[] = [];
 
-  public startSpinning() {
+  public startSpinning(buyBonus: boolean = false) {
     if (this.isSpinning) return;
     this.isSpinning = true;
 
@@ -85,7 +92,7 @@ export class ReelSet extends PIXI.Container {
     }
     Sound.play("spin");
     const stopId = window.setTimeout(() => {
-      this.stopSpin();
+      this.stopSpin(buyBonus);
     }, 150 + (this.reels.length - 1) * 180);
     this.activeTimeouts.push(stopId);
   }
@@ -98,13 +105,15 @@ export class ReelSet extends PIXI.Container {
     return false;
   }
 
-  private stopSpin(): void {
+  private async stopSpin(buyBonus: boolean = false) {
     for (let i = 0; i < this.reels.length; i++) {
       const id = window.setTimeout(() => {
         this.reels[i].stopSpin();
 
         if (i === this.reels.length - 1) {
-          const winId = window.setTimeout(() => {
+          const winId = window.setTimeout(async () => {
+            this.checkWin(this.reels);
+            await this.triggerBonus(buyBonus);
             this.checkWin(this.reels);
             this.isSpinning = false;
           }, 500);
@@ -115,15 +124,26 @@ export class ReelSet extends PIXI.Container {
     }
   }
 
-  public abortSpin() {
+  public async abortSpin() {
     this.clearTimeouts();
     Sound.stop("spin");
     for (const reel of this.reels) {
       reel.stopSpin();
       reel.hardSnapToGrid();
     }
-    this.isSpinning = false;
     this.checkWin(this.reels);
+    await this.triggerBonus();
+    this.checkWin(this.reels);
+    this.isSpinning = false;
+  }
+
+  public async triggerBonus(buyBonus: boolean = false) {
+    const randomSymbolNumber = Math.floor(Math.random() * 10);
+    if (Math.random() < 1 / 6 || buyBonus) {
+      await sleep(500);
+      await this.character.playFeature(this.reels, randomSymbolNumber);
+      await sleep(3500);
+    }
   }
 
   private clearTimeouts() {
@@ -134,6 +154,7 @@ export class ReelSet extends PIXI.Container {
   }
 
   private checkWin(reels: Reel[]) {
+    console.log("check win");
     // Build rows
     const rows: SlotSymbol[][] = [[], [], []];
     for (let reel of reels) {
@@ -169,7 +190,6 @@ export class ReelSet extends PIXI.Container {
       // win animation on winning symbols
       if (multiplier > 0) {
         this.slotmachine.balance += this.slotmachine.bet * multiplier;
-        this.slotmachine.updateBalanceText();
         this.character.playWin();
         Sound.play("win");
         for (let i = 0; i < matchCount; i++) {

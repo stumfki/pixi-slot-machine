@@ -29,12 +29,22 @@ export class SlotSymbol {
     });
   }
 
-public createRandomSymbol() {
+  public createSpecificSymbol(symbolId: number) {
+    this.symbolId = symbolId;
+
+    const newTexture = AssetLoader.getTexture(SYMBOL_TEXTURES[symbolId]);
+    if (!newTexture)
+      throw new Error(`Texture not found: ${SYMBOL_TEXTURES[symbolId]}`);
+    this.sprite.texture = newTexture;
+  }
+
+  public createRandomSymbol() {
     const newIndex = Math.floor(Math.random() * SYMBOL_TEXTURES.length);
     this.symbolId = newIndex;
 
     const newTexture = AssetLoader.getTexture(SYMBOL_TEXTURES[newIndex]);
-    if (!newTexture) throw new Error(`Texture not found: ${SYMBOL_TEXTURES[newIndex]}`);
+    if (!newTexture)
+      throw new Error(`Texture not found: ${SYMBOL_TEXTURES[newIndex]}`);
     this.sprite.texture = newTexture;
-}
+  }
 }

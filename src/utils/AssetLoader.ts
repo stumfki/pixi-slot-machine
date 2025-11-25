@@ -8,6 +8,7 @@ const IMAGES = [
   "reel.png",
   "betbuttons.png",
   "spinbuttonenabled.png",
+  "buybonusbutton.png",
   "spindisabled.png",
   "background.jpg",
   "reelbackground.png",
@@ -30,7 +31,9 @@ const SOUNDS = [
     "music.wav",
     "spin.wav",
     "win.wav",
-    "slash.wav"
+    "slash.wav",
+    "ghostmove.wav",
+    "bonusactivate.wav"
 ];
 
 const textureCache: Record<string, PIXI.Texture> = {};

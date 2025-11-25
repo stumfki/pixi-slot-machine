@@ -1,6 +1,9 @@
 import * as PIXI from "pixi.js";
 import { AssetLoader } from "../../../utils/AssetLoader";
 import { Sound } from "../../../utils/Sound";
+import { gsap } from "gsap";
+import { Reel } from "../../reels/Reel";
+import { sleep } from "../../../utils/Utils";
 
 export class Character extends PIXI.Container {
   private animatedSprite: PIXI.AnimatedSprite;
@@ -10,12 +13,6 @@ export class Character extends PIXI.Container {
     super();
     this.sortableChildren = true;
     this.zIndex = 5;
-    window.addEventListener("keydown", (event) => {
-      if (event.code === "KeyP") {
-        console.log("P key pressed - spinning!");
-        this.playWin();
-      }
-    });
     const idleTexture = AssetLoader.getTexture("character/idle.png");
     const attackingTexture = AssetLoader.getTexture("character/attacking.png");
 
@@ -31,7 +28,7 @@ export class Character extends PIXI.Container {
       this.animations["idle1.1"] || [idleTexture];
     this.animatedSprite = new PIXI.AnimatedSprite(idleFrames);
     this.animatedSprite.anchor.set(0.5);
-    this.animatedSprite.scale.set(5);
+    this.animatedSprite.scale.set(2);
     this.animatedSprite.animationSpeed = 0.1;
     this.animatedSprite.loop = true;
 
@@ -47,7 +44,7 @@ export class Character extends PIXI.Container {
 
     this.animatedSprite.play();
     this.addChild(this.animatedSprite);
-    this.position.set(350, 460);
+    this.position.set(520, 160);
   }
 
   private setupAnimations(
@@ -83,6 +80,77 @@ export class Character extends PIXI.Container {
     }
   }
 
+  public async moveToReel0() {
+    await gsap.to(this.position, {
+      x: 367,
+      y: 285,
+      duration: 2,
+      ease: "power1.inOut",
+    });
+  }
+  public async moveToReel1() {
+    await gsap.to(this.position, {
+      x: 367,
+      y: 485,
+      duration: 2,
+      ease: "power1.inOut",
+    });
+  }
+  public async moveToReel2() {
+    await gsap.to(this.position, {
+      x: 367,
+      y: 641,
+      duration: 2,
+      ease: "power1.inOut",
+    });
+  }
+
+  public async resetPoitionAndScale() {
+    await gsap.to(this.position, {
+      x: 520,
+      y: 160,
+      duration: 2,
+      ease: "power1.inOut",
+    });
+    await gsap.to(this.animatedSprite.scale, {
+      x: 2,
+      y: 2,
+      duration: 1,
+      ease: "power1.inOut",
+    });
+  }
+  public async playFeature(reels: Reel[], symbolId: number = 3) {
+    Sound.play("bonusactivate");
+    await gsap.to(this.animatedSprite.scale, {
+      x: 5,
+      y: 5,
+      duration: 1,
+      ease: "power1.inOut",
+    });
+
+    for (let reel of reels) {
+      for (let i = 0; i < reel.symbols.length; i++) {
+        const globalPos = reel.symbols[i].sprite.getGlobalPosition();
+        Sound.play("ghostmove");
+        await gsap.to(this.position, {
+          x: globalPos.x,
+          y: globalPos.y,
+          duration: 1,
+          ease: "power1.inOut",
+        });
+
+        await sleep(300);
+        if (Math.random() < 1 / 3) {
+          this.playWin();
+          reel.symbols[i].createSpecificSymbol(symbolId);
+        } else {
+        }
+      }
+    }
+    Sound.play("ghostmove");
+    this.resetPoitionAndScale();
+  }
+
   public playAnimation(animationName: string, loop: boolean = true): void {
     let animKey = animationName;
     if (!this.animations[animKey]) {
@@ -98,8 +166,8 @@ export class Character extends PIXI.Container {
     this.animatedSprite.play();
   }
 
-  public playWin() {
-    Sound.play('slash', 1.5)
-    this.playAnimation("win", false);
+  public async playWin() {
+    Sound.play("slash", 1.5);
+    await this.playAnimation("win", false);
   }
 }
